@@ -3,10 +3,10 @@ spring:
         name: advantshopFrontadIntegration
 advantshop:
     uri: https://eochocolate.ru/
-    apiKey: f3d1144d62a7e2ba614dd672074cec3b4ad6723e2e3d30bf7fc7ba4eb7179ca4
+    apiKey:
 frontpad:
     uri: https://app.frontpad.ru/api/index.php?get_client
-    secret: t4N8SGtyFiyYfsQkB5fAbat2rGTYHR84GH2kdfGKt5yBh9NK4Y96YsS92ATzdSkKraZyht7Dks4zrE7fk6b8iT89fSyiAHZQKG9T46ibiaADFyHSnKRBtNBDtYQStAt57tN2nZ3B2n4tKBa2aRnysQZKzBrS2KKY6iGf8zGZNzdiZd92Ykfa36Nkt55fDD5yQAENZ9zzyDGfGF7rTbrG75YrYNzkdnHTQatA9SYyfsEQZA5FBhazaYNZz9
+    secret:
 logging:
     file:
         name: log.txt
