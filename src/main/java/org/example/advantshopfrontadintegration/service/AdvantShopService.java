@@ -23,14 +23,13 @@ public class AdvantShopService {
     @Value("${advantshop.apiKey}")
     private String apiKey;
 
-    public OrdersDTO getOrderList() {
+    public OrdersDTO getOrderList(Integer page) {
         final String uri = advantshopUri + "api/order/getlist";
         String urlTemplate = UriComponentsBuilder.fromHttpUrl(uri).queryParam("apiKey", apiKey).encode().toUriString();
         AdvantshoRequestBody body = new AdvantshoRequestBody();
         body.setDateFrom(LocalDate.now().minusDays(7).atStartOfDay().toString());
-        //body.setDateTo(LocalDate.now().plusDays(1).atStartOfDay().toString());
-
-        body.setPage(1);
+        body.setLoadItems(true);
+        body.setPage(page);
         body.setItemsPerPage(100);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<?> entity = new HttpEntity<>(body, headers);
@@ -44,12 +43,11 @@ public class AdvantShopService {
             log.error("Ошибка получения списка заказов error- {}", Objects.requireNonNull(response.getBody()).getErrors());
             return null;
         } else {
-            if (!response.getBody().isResult() || Objects.nonNull(response.getBody().getErrors())) {
+            if (!Objects.requireNonNull(response.getBody()).isResult() || Objects.nonNull(response.getBody().getErrors())) {
                 log.error("Ошибка получения списка заказов error- {}", Objects.requireNonNull(response.getBody().getErrors()));
                 return null;
             }
-            OrdersDTO ordersDTO = (OrdersDTO) Objects.requireNonNull(response.getBody()).getObj();
-            return ordersDTO;
+            return Objects.requireNonNull(response.getBody()).getObj();
         }
     }
 
@@ -69,12 +67,11 @@ public class AdvantShopService {
             log.error("Ошибка получения заказ error- {}", Objects.requireNonNull(response.getBody()).getErrors());
             return null;
         } else {
-            if (!response.getBody().isResult() || Objects.nonNull(response.getBody().getErrors())) {
+            if (!Objects.requireNonNull(response.getBody()).isResult() || Objects.nonNull(response.getBody().getErrors())) {
                 log.error("Ошибка получения заказа error- {}", Objects.requireNonNull(response.getBody().getErrors()));
                 return null;
             }
-            DataItemDTO dataItemDTO = Objects.requireNonNull(response.getBody()).getObj();
-            return dataItemDTO;
+            return Objects.requireNonNull(response.getBody()).getObj();
         }
     }
 }

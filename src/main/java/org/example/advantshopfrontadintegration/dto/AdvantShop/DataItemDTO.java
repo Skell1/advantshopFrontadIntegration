@@ -3,6 +3,8 @@ package org.example.advantshopfrontadintegration.dto.AdvantShop;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class DataItemDTO {
 
@@ -19,7 +21,7 @@ public class DataItemDTO {
     private double sum;
 
     @JsonProperty("Date")
-    private String date; // вы можете изменить на LocalDateTime в зависимости от ваших нужд
+    private String date; 
 
     @JsonProperty("CustomerComment")
     private String customerComment;
@@ -46,7 +48,7 @@ public class DataItemDTO {
     private String trackNumber;
 
     @JsonProperty("DeliveryDate")
-    private String deliveryDate; // вы можете изменить на LocalDateTime в зависимости от ваших нужд
+    private String deliveryDate; 
 
     @JsonProperty("DeliveryTime")
     private String deliveryTime;
@@ -70,7 +72,7 @@ public class DataItemDTO {
     private boolean isPaid;
 
     @JsonProperty("PaymentDate")
-    private String paymentDate; // вы можете изменить на LocalDateTime в зависимости от ваших нужд
+    private String paymentDate; 
 
     @JsonProperty("Customer")
     private CustomerDTO customer;
@@ -82,5 +84,8 @@ public class DataItemDTO {
     private SourceDTO source;
 
     @JsonProperty("ModifiedDate")
-    private String modifiedDate; // вы можете изменить на LocalDateTime в зависимости от ваших нужд
+    private String modifiedDate;
+
+    @JsonProperty("Items")
+    private List<Item> items;
 }

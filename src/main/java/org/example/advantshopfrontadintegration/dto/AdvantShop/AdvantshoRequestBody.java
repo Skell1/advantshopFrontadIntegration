@@ -8,5 +8,6 @@ public class AdvantshoRequestBody {
     Integer ItemsPerPage;
     String DateFrom;
     String DateTo;
+    Boolean LoadItems;
 
 }

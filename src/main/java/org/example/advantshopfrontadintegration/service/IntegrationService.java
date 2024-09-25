@@ -30,32 +30,39 @@ public class IntegrationService {
 
     @Scheduled(initialDelay = 5, fixedDelay = 900000)
     public void startIntegration() {
-        log.info("Starting integration...");
-        OrdersDTO ordersDTO = advantShopService.getOrderList();
-        if (Objects.isNull(ordersDTO)) return;
-        Integer lastOrder = LastOrder.getLastOrder();
-        if (Objects.isNull(lastOrder)) return;
+        try {
+            log.info("Starting integration...");
+            OrdersDTO ordersDTO = advantShopService.getOrderList(0);
+            if (Objects.isNull(ordersDTO))
+                return;
+            Integer newLastOrder = transferNewOrders(ordersDTO);
 
-        if (ordersDTO.getTotalItemsCount()==lastOrder) {
+            while (ordersDTO.getTotalPageCount() > ordersDTO.getPageIndex()) {
+                ordersDTO = advantShopService.getOrderList(ordersDTO.getPageIndex() + 1);
+                Integer newLastOrderTemp = transferNewOrders(ordersDTO);
+                if (newLastOrderTemp > newLastOrder) newLastOrder = newLastOrderTemp;
+            }
+            LastOrder.writeNewLastOrder(newLastOrder);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+    }
+
+    public Integer transferNewOrders(OrdersDTO ordersDTO) {
+        if (Objects.isNull(ordersDTO.getDataItems()) || ordersDTO.getDataItems().isEmpty())
             log.info("Нет новых заказов");
-            return;
-        } else if (ordersDTO.getTotalItemsCount()<lastOrder) {
-            log.error("TotalItemsCount - {}, lastOrder - {}. Неверные значения", ordersDTO.getTotalItemsCount(), lastOrder);
-            return;
-        }
-
-        while (lastOrder < ordersDTO.getTotalItemsCount()) {
-            lastOrder++;
-            DataItemDTO dataItemDTO = advantShopService.getOrderById(lastOrder);
-
+        Integer lastOrder = LastOrder.getLastOrder();
+        if (Objects.isNull(lastOrder)) return null;
+        int newLastOrder = lastOrder;
+        for (DataItemDTO dataItemDTO : ordersDTO.getDataItems()) {
+            if (dataItemDTO.getId() <= lastOrder) continue;
+            if (dataItemDTO.getId() > newLastOrder) newLastOrder = dataItemDTO.getId();
             FrontPadOrder frontPadOrder = frontPadOrderConverter.convert(dataItemDTO);
+            frontpadService.postNewOrder(frontPadOrder, dataItemDTO.getId());
 
-            frontpadService.postNewOrder(frontPadOrder);
-
-            LastOrder.writeNewLastOrder(lastOrder);
-            lastOrder = LastOrder.getLastOrder();
         }
-
+        return newLastOrder;
     }
 
 
