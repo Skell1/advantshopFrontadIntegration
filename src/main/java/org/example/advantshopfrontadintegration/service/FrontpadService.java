@@ -51,7 +51,7 @@ public class FrontpadService {
             Gson gson = new Gson();
             ResponseDTO responseDTO = gson.fromJson(response.getBody() , ResponseDTO.class);
             if (!Objects.requireNonNull(responseDTO).getResult().equals("success")) {
-                log.error("Ошибка получения списка заказов error- {}", Objects.requireNonNull(responseDTO).getError());
+                log.error("Ошибка получения списка заказов error- {} , entity - {}", Objects.requireNonNull(responseDTO).getError(), entity);
             }
             log.info("Заказ orderNumber = {} Передан в FrontPad c order_number = {}", frontPadOrderId, responseDTO.getOrder_number());
             return responseDTO;
