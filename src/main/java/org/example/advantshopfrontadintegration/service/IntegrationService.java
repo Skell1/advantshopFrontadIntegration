@@ -1,5 +1,6 @@
 package org.example.advantshopfrontadintegration.service;
 
+import lombok.val;
 import org.example.advantshopfrontadintegration.converter.FrontPadOrderConverter;
 import org.example.advantshopfrontadintegration.dto.AdvantShop.DataItemDTO;
 import org.example.advantshopfrontadintegration.dto.AdvantShop.OrdersDTO;
@@ -49,7 +50,7 @@ public class IntegrationService {
 
     }
 
-    public Integer transferNewOrders(OrdersDTO ordersDTO) {
+    public Integer transferNewOrders(OrdersDTO ordersDTO) throws InterruptedException {
         if (Objects.isNull(ordersDTO.getDataItems()) || ordersDTO.getDataItems().isEmpty())
             log.info("Нет новых заказов");
         Integer lastOrder = LastOrder.getLastOrder();
@@ -59,7 +60,8 @@ public class IntegrationService {
             if (dataItemDTO.getId() <= lastOrder) continue;
             if (dataItemDTO.getId() > newLastOrder) newLastOrder = dataItemDTO.getId();
             FrontPadOrder frontPadOrder = frontPadOrderConverter.convert(dataItemDTO);
-            frontpadService.postNewOrder(frontPadOrder, dataItemDTO.getId());
+            val b = frontPadOrderConverter.convertToMultiValueMap(dataItemDTO);
+            frontpadService.postNewOrder(frontPadOrder, dataItemDTO.getId(), b);
 
         }
         return newLastOrder;

@@ -17,6 +17,4 @@ public class SourceDTO {
     @JsonProperty("Type")
     private String type;
 
-    // Геттеры и сеттеры
-    // ...
 }

@@ -68,6 +68,4 @@ public class CustomerDTO {
     @JsonProperty("Floor")
     private String floor;
 
-    // Геттеры и сеттеры
-    // ...
 }

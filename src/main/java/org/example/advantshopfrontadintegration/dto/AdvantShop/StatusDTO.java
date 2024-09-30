@@ -26,6 +26,6 @@ public class StatusDTO {
     @JsonProperty("IsCancellationForbidden")
     private boolean isCancellationForbidden;
 
-    // Геттеры и сеттеры
-    // ...
+    
+    
 }
