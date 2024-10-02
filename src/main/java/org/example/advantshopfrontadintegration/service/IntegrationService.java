@@ -35,6 +35,7 @@ public class IntegrationService {
     public void startIntegration() {
         try {
             log.info("Starting integration...");
+            telegramBot.logInfoMessage("Starting integration...");
             OrdersDTO ordersDTO = advantShopService.getOrderList(0);
             if (Objects.isNull(ordersDTO))
                 return;
