@@ -23,6 +23,12 @@ public class AdvantShopService {
     @Value("${advantshop.apiKey}")
     private String apiKey;
 
+    private final TelegramBot telegramBot;
+
+    public AdvantShopService(TelegramBot telegramBot) {
+        this.telegramBot = telegramBot;
+    }
+
     public OrdersDTO getOrderList(Integer page) {
         final String uri = advantshopUri + "api/order/getlist";
         String urlTemplate = UriComponentsBuilder.fromHttpUrl(uri).queryParam("apiKey", apiKey).encode().toUriString();
@@ -41,10 +47,12 @@ public class AdvantShopService {
                 ResponseListOrdersDTO.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             log.error("Ошибка получения списка заказов error- {}", Objects.requireNonNull(response.getBody()).getErrors());
+            telegramBot.logErrorMessage("Ошибка получения списка заказов error- " + Objects.requireNonNull(response.getBody()).getErrors());
             return null;
         } else {
             if (!Objects.requireNonNull(response.getBody()).isResult() || Objects.nonNull(response.getBody().getErrors())) {
                 log.error("Ошибка получения списка заказов error- {}", Objects.requireNonNull(response.getBody().getErrors()));
+                telegramBot.logErrorMessage("Ошибка получения списка заказов error- " + Objects.requireNonNull(response.getBody()).getErrors());
                 return null;
             }
             return Objects.requireNonNull(response.getBody()).getObj();

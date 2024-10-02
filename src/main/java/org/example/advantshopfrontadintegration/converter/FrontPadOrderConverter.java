@@ -5,6 +5,7 @@ import org.example.advantshopfrontadintegration.dto.AdvantShop.CustomerDTO;
 import org.example.advantshopfrontadintegration.dto.AdvantShop.DataItemDTO;
 import org.example.advantshopfrontadintegration.dto.AdvantShop.Item;
 import org.example.advantshopfrontadintegration.dto.Frontpad.FrontPadOrder;
+import org.example.advantshopfrontadintegration.service.TelegramBot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -18,6 +19,12 @@ public class FrontPadOrderConverter {
 
     @Value("${frontpad.secret}")
     private String secret;
+
+    private final TelegramBot telegramBot;
+
+    public FrontPadOrderConverter(TelegramBot telegramBot) {
+        this.telegramBot = telegramBot;
+    }
 
     public FrontPadOrder convert(DataItemDTO dataItemDTO) {
         FrontPadOrder frontPadOrder = new FrontPadOrder();
@@ -100,7 +107,10 @@ public class FrontPadOrderConverter {
             if (Objects.nonNull(dataItemDTO.getItems().get(i).getArtNo()) && Objects.nonNull(dataItemDTO.getItems().get(i).getAmount())) {
                 maps.put("product[" + i + "]", Collections.singletonList(dataItemDTO.getItems().get(i).getArtNo()));
                 maps.put("product_kol[" + i + "]", Collections.singletonList(dataItemDTO.getItems().get(i).getAmount()));
-            } else log.error("Заказ - {} артикул или количество не задано", dataItemDTO.getId());
+            } else {
+                log.error("Заказ - {} артикул или количество не задано", dataItemDTO.getId());
+                telegramBot.logErrorMessage("Заказ - " + dataItemDTO.getId() + " артикул или количество не задано");
+            }
         }
 
         maps.put("mail", Collections.singletonList(customerDTO.getEmail()));

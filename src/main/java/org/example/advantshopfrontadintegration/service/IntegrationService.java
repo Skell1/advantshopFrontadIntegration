@@ -4,8 +4,7 @@ import lombok.val;
 import org.example.advantshopfrontadintegration.converter.FrontPadOrderConverter;
 import org.example.advantshopfrontadintegration.dto.AdvantShop.DataItemDTO;
 import org.example.advantshopfrontadintegration.dto.AdvantShop.OrdersDTO;
-import org.example.advantshopfrontadintegration.dto.Frontpad.FrontPadOrder;
-import org.example.advantshopfrontadintegration.util.LastOrder;
+import org.example.advantshopfrontadintegration.util.LastOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,12 +19,15 @@ public class IntegrationService {
     private final AdvantShopService advantShopService;
     private final FrontPadOrderConverter frontPadOrderConverter;
     private final FrontpadService frontpadService;
+    private final LastOrderService lastOrderService;
+    private final TelegramBot telegramBot;
 
-
-    public IntegrationService(AdvantShopService advantShopService, FrontPadOrderConverter frontPadOrderConverter, FrontpadService frontpadService) {
+    public IntegrationService(AdvantShopService advantShopService, FrontPadOrderConverter frontPadOrderConverter, FrontpadService frontpadService, LastOrderService lastOrderService, TelegramBot telegramBot) {
         this.advantShopService = advantShopService;
         this.frontPadOrderConverter = frontPadOrderConverter;
         this.frontpadService = frontpadService;
+        this.lastOrderService = lastOrderService;
+        this.telegramBot = telegramBot;
     }
 
 
@@ -43,9 +45,10 @@ public class IntegrationService {
                 Integer newLastOrderTemp = transferNewOrders(ordersDTO);
                 if (newLastOrderTemp > newLastOrder) newLastOrder = newLastOrderTemp;
             }
-            LastOrder.writeNewLastOrder(newLastOrder);
+            lastOrderService.writeNewLastOrder(newLastOrder);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            telegramBot.logErrorMessage("error Integration " + e);
         }
 
     }
@@ -53,15 +56,14 @@ public class IntegrationService {
     public Integer transferNewOrders(OrdersDTO ordersDTO) throws InterruptedException {
         if (Objects.isNull(ordersDTO.getDataItems()) || ordersDTO.getDataItems().isEmpty())
             log.info("Нет новых заказов");
-        Integer lastOrder = LastOrder.getLastOrder();
+        Integer lastOrder = lastOrderService.getLastOrder();
         if (Objects.isNull(lastOrder)) return null;
         int newLastOrder = lastOrder;
         for (DataItemDTO dataItemDTO : ordersDTO.getDataItems()) {
             if (dataItemDTO.getId() <= lastOrder) continue;
             if (dataItemDTO.getId() > newLastOrder) newLastOrder = dataItemDTO.getId();
-            FrontPadOrder frontPadOrder = frontPadOrderConverter.convert(dataItemDTO);
-            val b = frontPadOrderConverter.convertToMultiValueMap(dataItemDTO);
-            frontpadService.postNewOrder(frontPadOrder, dataItemDTO.getId(), b);
+            val frontPadOrder = frontPadOrderConverter.convertToMultiValueMap(dataItemDTO);
+            frontpadService.postNewOrder(dataItemDTO.getId(), frontPadOrder);
 
         }
         return newLastOrder;

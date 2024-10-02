@@ -3,7 +3,6 @@ package org.example.advantshopfrontadintegration.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.example.advantshopfrontadintegration.dto.Frontpad.FrontPadOrder;
 import org.example.advantshopfrontadintegration.dto.Frontpad.ResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -25,35 +24,40 @@ public class FrontpadService {
     private String advantshopUri;
 
     private final ObjectMapper objectMapper;
+    private final TelegramBot telegramBot;
 
-    public FrontpadService(ObjectMapper objectMapper) {
+    public FrontpadService(ObjectMapper objectMapper, TelegramBot telegramBot) {
         this.objectMapper = objectMapper;
+        this.telegramBot = telegramBot;
     }
 
 
-    public ResponseDTO postNewOrder(FrontPadOrder frontPadOrder, Integer frontPadOrderId, MultiValueMap<String, String> b) throws InterruptedException {
+    public ResponseDTO postNewOrder(Integer frontPadOrderId, MultiValueMap<String, String> frontPadOrder) throws InterruptedException {
         final String uri = advantshopUri + "?new_order";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<?> entity = new HttpEntity<>(b, headers);
+        HttpEntity<?> entity = new HttpEntity<>(frontPadOrder, headers);
         RestTemplate restTemplate = new RestTemplate();
         Thread.sleep(1500);
         ResponseEntity<String> response = restTemplate.exchange(uri,
                 HttpMethod.POST,
                 entity,
                 String.class,
-                b);
+                frontPadOrder);
 
         if (response.getStatusCode() != HttpStatus.OK) {
             log.error("Ошибка получения списка заказов");
+            telegramBot.logErrorMessage("Ошибка получения списка заказов");
             return null;
         } else {
             Gson gson = new Gson();
             ResponseDTO responseDTO = gson.fromJson(response.getBody() , ResponseDTO.class);
             if (!Objects.requireNonNull(responseDTO).getResult().equals("success")) {
                 log.error("Ошибка получения списка заказов error- {} , entity - {}", Objects.requireNonNull(responseDTO).getError(), entity);
+                telegramBot.logErrorMessage("Ошибка получения списка заказов error- " + Objects.requireNonNull(responseDTO).getError() + " , entity - " + entity);
             }
             log.info("Заказ orderNumber = {} Передан в FrontPad c order_number = {}", frontPadOrderId, responseDTO.getOrder_number());
+            telegramBot.logInfoMessage("Заказ orderNumber = " + frontPadOrderId + " Передан в FrontPad c order_number = " + responseDTO.getOrder_number());
             return responseDTO;
         }
     }

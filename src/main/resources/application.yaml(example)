@@ -7,6 +7,9 @@ advantshop:
 frontpad:
     uri: https://app.frontpad.ru/api/index.php?get_client
     secret:
+bot:
+    token:
+    chatId: '-1002295532913'
 logging:
     file:
         name: log.txt
