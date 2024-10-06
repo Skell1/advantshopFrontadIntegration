@@ -72,11 +72,13 @@ public class AdvantShopService {
                 entity,
                 ResponseOrderDTO.class);
         if (response.getStatusCode() != HttpStatus.OK) {
-            log.error("Ошибка получения заказ error- {}", Objects.requireNonNull(response.getBody()).getErrors());
+            log.error("Ошибка получения заказа {} error- {}",orderId, Objects.requireNonNull(response.getBody()).getErrors());
+            telegramBot.logErrorMessage("Ошибка получения заказа " + orderId + " error- " + Objects.requireNonNull(response.getBody()).getErrors());
             return null;
         } else {
             if (!Objects.requireNonNull(response.getBody()).isResult() || Objects.nonNull(response.getBody().getErrors())) {
-                log.error("Ошибка получения заказа error- {}", Objects.requireNonNull(response.getBody().getErrors()));
+                log.error("Ошибка получения заказа {} error- {}",orderId, Objects.requireNonNull(response.getBody()).getErrors());
+                telegramBot.logErrorMessage("Ошибка получения заказа " + orderId + " error- " + Objects.requireNonNull(response.getBody()).getErrors());
                 return null;
             }
             return Objects.requireNonNull(response.getBody()).getObj();

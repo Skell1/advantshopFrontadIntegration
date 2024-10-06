@@ -74,11 +74,6 @@ public class FrontPadOrderConverter {
             } else log.error("Заказ - {} артикул или количество не задано", dataItemDTO.getId());
         }
 
-        maps.put("product", "1");
-        maps.put("product_kol", "1");
-        maps.put("product", "2");
-        maps.put("product_kol", "2");
-
         maps.put("mail", customerDTO.getEmail());
 
         StringBuilder addressBuilder = new StringBuilder();
@@ -124,6 +119,10 @@ public class FrontPadOrderConverter {
         maps.put("street", Collections.singletonList(addressBuilder.toString()));
 
         maps.put("descr", Collections.singletonList("Заказ " + dataItemDTO.getId() + ". " + dataItemDTO.getCustomerComment()));
+
+        if (Objects.nonNull(dataItemDTO.isPaid()) && dataItemDTO.isPaid()) {
+            maps.put("pay", Collections.singletonList("2"));
+        }
 
         return maps;
     }
