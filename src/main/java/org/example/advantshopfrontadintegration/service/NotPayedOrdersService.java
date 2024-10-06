@@ -18,9 +18,9 @@ public class NotPayedOrdersService {
         this.telegramBot = telegramBot;
     }
 
-    public void init() {
+    public static void init() {
         Set<Integer> notPayedOrders = new HashSet<>();
-        writeNotPayedOrders(notPayedOrders);
+        writeNotPayedOrdersStatic(notPayedOrders);
     }
 
     public void writeNotPayedOrders(Set<Integer> notPayedOrders) {
@@ -34,10 +34,25 @@ public class NotPayedOrdersService {
             oos.close();
             fos.close();
         } catch(Exception e) {
-            log.error("Ошибка записи в файл неоплаченных заказов");
-            telegramBot.logErrorMessage("Ошибка записи в файл неоплаченных заказов");
+            log.error("Ошибка записи в файл неоплаченных заказов {}", e.getMessage());
+            telegramBot.logErrorMessage("Ошибка записи в файл неоплаченных заказов "+ e.getMessage());
         }
 
+    }
+
+    public static void writeNotPayedOrdersStatic(Set<Integer> notPayedOrders) {
+        try {
+            File fileOne=new File(fileName);
+            FileOutputStream fos=new FileOutputStream(fileOne);
+            ObjectOutputStream oos=new ObjectOutputStream(fos);
+
+            oos.writeObject(notPayedOrders);
+            oos.flush();
+            oos.close();
+            fos.close();
+        } catch(Exception e) {
+            log.error("Ошибка записи в файл неоплаченных заказов {}", e.getMessage());
+        }
     }
 
 
@@ -55,8 +70,8 @@ public class NotPayedOrdersService {
             return setInFile;
 
         } catch(Exception e) {
-            log.error("Ошибка чтения из файла неоплаченных заказов");
-            telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
+            log.error("Ошибка чтения из файла неоплаченных заказов {}", e.getMessage());
+            telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов " + e.getMessage());
         }
 
         return null;
