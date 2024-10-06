@@ -87,7 +87,7 @@ public class IntegrationService {
     public void searchNewPayedOrders() {
         try {
         Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
-        if (Objects.nonNull(notPayedOrders)) {
+        if (Objects.isNull(notPayedOrders)) {
             log.error("Ошибка чтения из файла неоплаченных заказов");
             telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
         }
@@ -120,7 +120,7 @@ public class IntegrationService {
         if (Objects.isNull(newNotPayedOrders) || newNotPayedOrders.isEmpty()) return;
         try {
             Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
-            if (Objects.nonNull(notPayedOrders)) {
+            if (Objects.isNull(notPayedOrders)) {
                 log.error("Ошибка чтения из файла неоплаченных заказов");
                 telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
             }
