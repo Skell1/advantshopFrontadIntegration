@@ -16,9 +16,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public void logInfoMessage(String message) {
         try {
-            StringBuilder stringBuilder = new StringBuilder("#info" + "\n ");
-            stringBuilder.append(message);
-            this.sendMessage(message);
+            this.sendMessage("#info " + "\n " + message);
         } catch (Exception e) {
             log.error("logInfoMessage {}", e.getMessage());
         }
@@ -26,9 +24,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public void logErrorMessage(String message) {
         try {
-        StringBuilder stringBuilder = new StringBuilder("#error" + "\n ");
-        stringBuilder.append(message);
-        this.sendMessage(message);
+            this.sendMessage("#error" + "\n " + message);
         } catch (Exception e) {
             log.error("logInfoMessage {}", e.getMessage());
         }
