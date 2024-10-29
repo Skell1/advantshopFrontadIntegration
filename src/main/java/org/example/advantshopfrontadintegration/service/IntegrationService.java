@@ -87,14 +87,13 @@ public class IntegrationService {
         try {
         Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
         if (Objects.isNull(notPayedOrders) || notPayedOrders.isEmpty()) {
-            log.info("Ошибка чтения из файла неоплаченных заказов");
+            log.info("Список неоплаченных заказов пуст или null");
             //telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
             return;
         }
         for(Integer orderId : notPayedOrders) {
             DataItemDTO dataItemDTO = advantShopService.getOrderById(orderId);
             if (Objects.isNull(dataItemDTO)) {
-
                 continue;
             }
             if (dataItemDTO.isPaid()) {
@@ -121,7 +120,6 @@ public class IntegrationService {
         try {
             Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
             if (Objects.isNull(notPayedOrders)) {
-                log.error("Ошибка чтения из файла неоплаченных заказов");
                 notPayedOrders = new HashSet<>();
             }
             notPayedOrders.addAll(newNotPayedOrders);
