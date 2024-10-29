@@ -24,7 +24,11 @@ public class NotPayedOrdersService {
 
     public Set<Integer> readNotPayedOrders() {
         try {
-            String line = Files.readAllLines(path, StandardCharsets.UTF_8).get(0);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+            if (lines.isEmpty()) {
+                return new HashSet<>();
+            }
+            String line = lines.get(0);
             log.info("Прочитанные неоплаченные заказы : {}", line);
             line = line.replace("[","").replace("]","").replace(" ","");
             if (line.isEmpty()) {
