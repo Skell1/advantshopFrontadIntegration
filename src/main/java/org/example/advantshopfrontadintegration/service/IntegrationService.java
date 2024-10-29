@@ -41,7 +41,6 @@ public class IntegrationService {
     public void startIntegration() {
         try {
             log.info("Starting integration...");
-            //telegramBot.logInfoMessage("Starting integration...");
             OrdersDTO ordersDTO = advantShopService.getOrderList(0);
             if (Objects.isNull(ordersDTO))
                 return;
@@ -58,8 +57,8 @@ public class IntegrationService {
             searchNewPayedOrders();
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            telegramBot.logErrorMessage("error Integration " + e);
+            log.error("error Integration {}", e);
+            telegramBot.logErrorMessage("error Integration " + e.getMessage());
         }
 
     }
@@ -88,8 +87,8 @@ public class IntegrationService {
         try {
         Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
         if (Objects.isNull(notPayedOrders) || notPayedOrders.isEmpty()) {
-            log.error("Ошибка чтения из файла неоплаченных заказов");
-            telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
+            log.info("Ошибка чтения из файла неоплаченных заказов");
+            //telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
             return;
         }
         for(Integer orderId : notPayedOrders) {
@@ -112,7 +111,7 @@ public class IntegrationService {
         notPayedOrdersService.writeNotPayedOrders(notPayedOrders);
 
         } catch (Exception e) {
-            log.error("Ошибка при повторной проверке неоплаченных заказов {}", e.getMessage());
+            log.error("Ошибка при повторной проверке неоплаченных заказов {}", e);
             telegramBot.logErrorMessage("Ошибка при повторной проверке неоплаченных заказов " + e.getMessage());
         }
     }
@@ -123,13 +122,13 @@ public class IntegrationService {
             Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
             if (Objects.isNull(notPayedOrders)) {
                 log.error("Ошибка чтения из файла неоплаченных заказов");
-                telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
+                notPayedOrders = new HashSet<>();
             }
             notPayedOrders.addAll(newNotPayedOrders);
 
             notPayedOrdersService.writeNotPayedOrders(notPayedOrders);
         } catch (Exception e) {
-            log.error("Ошибка добавления новых неоплачнных заказов неоплаченных заказов {}", e.getMessage());
+            log.error("Ошибка добавления новых неоплачнных заказов неоплаченных заказов {}", e);
             telegramBot.logErrorMessage("Ошибка добавления новых неоплачнных заказов неоплаченных заказов " + e.getMessage());
         }
     }

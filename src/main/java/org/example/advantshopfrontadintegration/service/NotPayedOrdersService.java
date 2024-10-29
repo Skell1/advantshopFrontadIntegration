@@ -25,7 +25,7 @@ public class NotPayedOrdersService {
     public Set<Integer> readNotPayedOrders() {
         try {
             List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-            if (lines.isEmpty()) {
+            if (Objects.isNull(lines) || lines.isEmpty()) {
                 return new HashSet<>();
             }
             String line = lines.get(0);
@@ -38,7 +38,7 @@ public class NotPayedOrdersService {
             return Arrays.stream(line.split(",")).map(Integer::parseInt)
                     .collect(Collectors.toSet());
         } catch (IOException e) {
-            log.error("Ошибка чтения из файла неоплаченных заказов {}", e.getMessage());
+            log.error("Ошибка чтения из файла неоплаченных заказов {}", e);
             telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов " + e.getMessage());
         }
         return new HashSet<>();
@@ -49,7 +49,7 @@ public class NotPayedOrdersService {
             Files.write(path, List.of(notPayedOrders.toString()), StandardCharsets.UTF_8);
             log.info("Записанные неоплаченные заказы : {}", notPayedOrders);
         } catch (IOException ex) {
-            log.error("Ошибка записи в файл неоплаченных заказов {}", ex.getMessage());
+            log.error("Ошибка записи в файл неоплаченных заказов {}", ex);
             telegramBot.logErrorMessage("Ошибка записи в файл неоплаченных заказов "+ ex.getMessage());
         }
 
