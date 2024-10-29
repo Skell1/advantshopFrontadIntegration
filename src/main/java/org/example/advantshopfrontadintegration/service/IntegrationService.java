@@ -87,9 +87,10 @@ public class IntegrationService {
     public void searchNewPayedOrders() {
         try {
         Set<Integer> notPayedOrders = notPayedOrdersService.readNotPayedOrders();
-        if (Objects.isNull(notPayedOrders)) {
+        if (Objects.isNull(notPayedOrders) || notPayedOrders.isEmpty()) {
             log.error("Ошибка чтения из файла неоплаченных заказов");
             telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов");
+            return;
         }
         for(Integer orderId : notPayedOrders) {
             DataItemDTO dataItemDTO = advantShopService.getOrderById(orderId);
