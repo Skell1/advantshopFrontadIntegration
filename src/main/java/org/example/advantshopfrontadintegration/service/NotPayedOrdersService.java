@@ -4,13 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class NotPayedOrdersService {
-    private static final String fileName = "notPayedOrders";
+    private static final Path path = Paths.get("notPayedOrders.txt");
 
     private final TelegramBot telegramBot;
 
@@ -18,62 +22,33 @@ public class NotPayedOrdersService {
         this.telegramBot = telegramBot;
     }
 
-    public static void init() {
-        Set<Integer> notPayedOrders = new HashSet<>();
-        writeNotPayedOrdersStatic(notPayedOrders);
+    public Set<Integer> readNotPayedOrders() {
+        try {
+            String line = Files.readAllLines(path, StandardCharsets.UTF_8).get(0);
+            log.info("Прочитанные неоплаченные заказы : {}", line);
+            line = line.replace("[","").replace("]","").replace(" ","");
+            if (line.isEmpty()) {
+                log.info("Cписок прочитанных неоплаченные заказов пуст");
+                return new HashSet<>();
+            }
+            return Arrays.stream(line.split(",")).map(Integer::parseInt)
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            log.error("Ошибка чтения из файла неоплаченных заказов {}", e.getMessage());
+            telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов " + e.getMessage());
+        }
+        return new HashSet<>();
     }
 
     public void writeNotPayedOrders(Set<Integer> notPayedOrders) {
         try {
-            File fileOne=new File(fileName);
-            FileOutputStream fos=new FileOutputStream(fileOne);
-            ObjectOutputStream oos=new ObjectOutputStream(fos);
-
-            oos.writeObject(notPayedOrders);
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch(Exception e) {
-            log.error("Ошибка записи в файл неоплаченных заказов {}", e.getMessage());
-            telegramBot.logErrorMessage("Ошибка записи в файл неоплаченных заказов "+ e.getMessage());
+            Files.write(path, List.of(notPayedOrders.toString()), StandardCharsets.UTF_8);
+            log.info("Записанные неоплаченные заказы : {}", notPayedOrders);
+        } catch (IOException ex) {
+            log.error("Ошибка записи в файл неоплаченных заказов {}", ex.getMessage());
+            telegramBot.logErrorMessage("Ошибка записи в файл неоплаченных заказов "+ ex.getMessage());
         }
 
     }
 
-    public static void writeNotPayedOrdersStatic(Set<Integer> notPayedOrders) {
-        try {
-            File fileOne=new File(fileName);
-            FileOutputStream fos=new FileOutputStream(fileOne);
-            ObjectOutputStream oos=new ObjectOutputStream(fos);
-
-            oos.writeObject(notPayedOrders);
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch(Exception e) {
-            log.error("Ошибка записи в файл неоплаченных заказов {}", e.getMessage());
-        }
-    }
-
-
-    public Set<Integer> readNotPayedOrders() {
-        try {
-            File toRead=new File(fileName);
-            FileInputStream fis=new FileInputStream(toRead);
-            ObjectInputStream ois=new ObjectInputStream(fis);
-
-            Set<Integer> setInFile=(Set<Integer>)ois.readObject();
-
-            ois.close();
-            fis.close();
-
-            return setInFile;
-
-        } catch(Exception e) {
-            log.error("Ошибка чтения из файла неоплаченных заказов {}", e.getMessage());
-            telegramBot.logErrorMessage("Ошибка чтения из файла неоплаченных заказов " + e.getMessage());
-        }
-
-        return null;
-    }
 }
