@@ -102,7 +102,7 @@ public class IntegrationService {
                 notPayedOrders.remove(orderId);
                 continue;
             }
-            if (LocalDateTime.parse(dataItemDTO.getDate()).toLocalDate().plusWeeks(1).isAfter(LocalDate.now())) {
+            if (LocalDateTime.parse(dataItemDTO.getDate()).toLocalDate().plusWeeks(1).isBefore(LocalDate.now())) {
                 notPayedOrders.remove(orderId);
             }
         }
